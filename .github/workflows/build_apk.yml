@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [master, main]
-  workflow_dispatch:  # Permite ejecutar manualmente
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,7 +22,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            python3-pip \
             build-essential \
             git \
             zip \
@@ -37,48 +36,42 @@ jobs:
             libtinfo6 \
             cmake \
             libffi-dev \
-            libssl-dev
+            libssl-dev \
+            lld
 
-      - name: Instalar Buildozer y dependencias Python
+      - name: Instalar Buildozer y Cython
         run: |
-          pip install --upgrade pip
-          pip install buildozer cython virtualenv
-
-      - name: Aceptar licencias Android SDK
-        run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          yes | sdkmanager --licenses || true
+          pip install --upgrade pip wheel setuptools
+          pip install cython==0.29.36
+          pip install buildozer
 
       - name: Compilar APK
         run: |
-          # Limpiar builds anteriores si existen
+          # Limpiar builds anteriores
           rm -rf .buildozer bin
 
-          # Aceptar licencias automáticamente
-          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+          # Compilar con timeout extendido
+          yes | timeout 45m buildozer android debug 2>&1 | tee build.log || true
 
-          # Compilar (yes para aceptar cualquier prompt)
-          yes | buildozer android debug 2>&1 | tee build.log
+          # Verificar si se generó el APK
+          if ls bin/*.apk 1> /dev/null 2>&1; then
+            echo "APK generado exitosamente"
+            ls -la bin/
+          else
+            echo "Error: No se generó el APK"
+            echo "=== Últimos errores del log ==="
+            grep -i "error\|exception\|failed" build.log | tail -50
+            exit 1
+          fi
 
-      - name: Buscar APK generado
-        run: |
-          echo "=== Contenido de bin/ ==="
-          ls -la bin/ 2>/dev/null || echo "bin/ no existe"
-          echo "=== Buscando APKs ==="
-          find . -name "*.apk" -type f 2>/dev/null || echo "No se encontraron APKs"
-          echo "=== Buscando errores en el log ==="
-          grep -i "error\|exception\|failed" build.log | tail -30 || echo "No se encontraron errores obvios"
-
-      - name: Subir APK como artefacto
+      - name: Subir APK
         uses: actions/upload-artifact@v4
-        if: success()
         with:
           name: RioSogamoso-APK
           path: bin/*.apk
           retention-days: 30
 
-      - name: Subir log de compilación (siempre)
+      - name: Subir log
         if: always()
         uses: actions/upload-artifact@v4
         with:

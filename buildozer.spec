@@ -18,7 +18,7 @@ source.include_exts = py,png,jpg,kv,atlas,json
 version = 1.0.0
 
 # Requisitos de Python
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,certifi,requests
+requirements = python3,kivy,kivymd,pillow,certifi,requests
 
 # Permisos de Android
 android.permissions = INTERNET,ACCESS_NETWORK_STATE
@@ -31,11 +31,11 @@ fullscreen = 0
 
 # API de Android (mínima y target)
 android.minapi = 21
-android.api = 33
+android.api = 31
 android.ndk = 25b
 
-# Arquitecturas a compilar
-android.archs = arm64-v8a,armeabi-v7a
+# Arquitecturas a compilar (solo arm64 para simplificar)
+android.archs = arm64-v8a
 
 # Modo de release o debug
 android.release_artifact = apk
