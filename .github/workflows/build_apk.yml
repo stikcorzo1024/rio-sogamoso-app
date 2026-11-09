@@ -67,18 +67,19 @@ jobs:
           ls -la bin/ 2>/dev/null || echo "bin/ no existe"
           echo "=== Buscando APKs ==="
           find . -name "*.apk" -type f 2>/dev/null || echo "No se encontraron APKs"
-          echo "=== Últimas líneas del log ==="
-          tail -50 build.log
+          echo "=== Buscando errores en el log ==="
+          grep -i "error\|exception\|failed" build.log | tail -30 || echo "No se encontraron errores obvios"
 
       - name: Subir APK como artefacto
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: RioSogamoso-APK
           path: bin/*.apk
           retention-days: 30
 
-      - name: Subir log de compilación (si falla)
-        if: failure()
+      - name: Subir log de compilación (siempre)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
