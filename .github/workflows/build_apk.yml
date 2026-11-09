@@ -3,8 +3,6 @@ name: Build Android APK
 on:
   push:
     branches: [master, main]
-    paths:
-      - 'Modulo_RioSogamoso_Kivy/**'
   workflow_dispatch:  # Permite ejecutar manualmente
 
 jobs:
@@ -47,7 +45,6 @@ jobs:
           pip install buildozer cython virtualenv
 
       - name: Compilar APK
-        working-directory: Modulo_RioSogamoso_Kivy
         run: |
           # Limpiar builds anteriores si existen
           rm -rf .buildozer bin
@@ -59,7 +56,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: RioSogamoso-APK
-          path: Modulo_RioSogamoso_Kivy/bin/*.apk
+          path: bin/*.apk
           retention-days: 30
 
       - name: Subir log de compilación (si falla)
@@ -67,4 +64,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-log
-          path: Modulo_RioSogamoso_Kivy/build.log
+          path: build.log
