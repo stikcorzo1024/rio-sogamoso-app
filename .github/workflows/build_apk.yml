@@ -8,70 +8,70 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Configurar Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Instalar dependencias del sistema
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-
+
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             build-essential \
+            ccache \
             git \
-            zip \
-            unzip \
-            openjdk-17-jdk \
-            autoconf \
-            libtool \
-            pkg-config \
-            zlib1g-dev \
-            libncurses5-dev \
-            libncursesw5-dev \
-            libtinfo6 \
-            cmake \
             libffi-dev \
             libssl-dev \
-            lld
+            libncurses5-dev \
+            libncursesw5-dev \
+            lld \
+            openjdk-17-jdk \
+            patch \
+            unzip \
+            zip \
+            zlib1g-dev \
+            autoconf \
+            libtool
 
-      - name: Instalar Buildozer y Cython
+          pip install --upgrade pip setuptools wheel
+          pip install buildozer cython==0.29.36
+
+      - name: Build APK
+        env:
+          ANDROIDSDK: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
         run: |
-          pip install --upgrade pip wheel setuptools
-          pip install cython==0.29.36
-          pip install buildozer
+          yes | buildozer -v android debug 2>&1 | tee build.log
 
-      - name: Compilar APK
+      - name: Check APK
         run: |
-          # Limpiar builds anteriores
-          rm -rf .buildozer bin
+          echo "=== Checking for APK ==="
+          find . -name "*.apk" -type f
+          ls -la bin/ || echo "bin folder not found"
 
-          # Compilar con timeout extendido
-          yes | timeout 45m buildozer android debug 2>&1 | tee build.log || true
-
-          # Verificar si se generó el APK
-          if ls bin/*.apk 1> /dev/null 2>&1; then
-            echo "APK generado exitosamente"
-            ls -la bin/
-          else
-            echo "Error: No se generó el APK"
-            echo "=== Últimos errores del log ==="
-            grep -i "error\|exception\|failed" build.log | tail -50
-            exit 1
-          fi
-
-      - name: Subir APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: RioSogamoso-APK
           path: bin/*.apk
-          retention-days: 30
+          if-no-files-found: warn
 
-      - name: Subir log
+      - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
