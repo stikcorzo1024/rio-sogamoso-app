@@ -1,0 +1,143 @@
+#:kivy 2.0
+
+<LoginScreen>:
+    name: 'login'
+    MDBoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(15)
+        md_bg_color: 0.05, 0.1, 0.15, 1
+
+        MDBoxLayout:
+            size_hint_y: None
+            height: dp(80)
+
+        MDLabel:
+            text: "Río Sogamoso"
+            halign: 'center'
+            font_style: 'Display'
+            role: 'small'
+            theme_text_color: 'Custom'
+            text_color: 0.2, 0.8, 0.7, 1
+
+        MDLabel:
+            text: "Monitoreo de despacho"
+            halign: 'center'
+            theme_text_color: 'Secondary'
+
+        MDBoxLayout:
+            size_hint_y: None
+            height: dp(30)
+
+        MDTextField:
+            id: usuario
+            hint_text: "Usuario XM"
+            mode: "outlined"
+            size_hint_x: 0.85
+            pos_hint: {'center_x': 0.5}
+
+        MDTextField:
+            id: contrasena
+            hint_text: "Contraseña"
+            mode: "outlined"
+            password: True
+            size_hint_x: 0.85
+            pos_hint: {'center_x': 0.5}
+
+        MDLabel:
+            id: error_label
+            text: ""
+            halign: 'center'
+            theme_text_color: 'Error'
+            size_hint_y: None
+            height: dp(30)
+
+        MDButton:
+            style: "filled"
+            pos_hint: {'center_x': 0.5}
+            on_release: root.iniciar_sesion()
+            MDButtonText:
+                text: "Conectar"
+
+        MDBoxLayout:
+            size_hint_y: 1
+
+
+<TablaDespachoScreen>:
+    name: 'tabla'
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        md_bg_color: 0.05, 0.1, 0.15, 1
+
+        MDTopAppBar:
+            title: "Río Sogamoso"
+            md_bg_color: 0.08, 0.12, 0.18, 1
+            right_action_items: [["refresh", lambda x: root.refrescar()], ["logout", lambda x: root.cerrar_sesion()]]
+
+        MDBoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(50)
+            padding: dp(10)
+            spacing: dp(10)
+
+            MDLabel:
+                id: chip_periodo
+                text: "P--"
+                halign: 'center'
+                font_style: 'Title'
+                role: 'large'
+                theme_text_color: 'Custom'
+                text_color: 0.2, 0.8, 0.7, 1
+                size_hint_x: 0.3
+
+            MDLabel:
+                id: chip_estado
+                text: "Desconectado"
+                halign: 'center'
+                theme_text_color: 'Secondary'
+                size_hint_x: 0.7
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: dp(10)
+
+            MDLabel:
+                text: "Despacho del día"
+                font_style: 'Title'
+                role: 'medium'
+                size_hint_y: None
+                height: dp(35)
+                theme_text_color: 'Custom'
+                text_color: 0.6, 0.7, 0.8, 1
+
+            ScrollView:
+                do_scroll_x: False
+
+                MDBoxLayout:
+                    id: lista_periodos
+                    orientation: 'vertical'
+                    spacing: dp(8)
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: dp(5)
+
+
+<GraficoScreen>:
+    name: 'grafico'
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        md_bg_color: 0.05, 0.1, 0.15, 1
+
+        MDTopAppBar:
+            title: "Gráfico de generación"
+            md_bg_color: 0.08, 0.12, 0.18, 1
+            left_action_items: [["arrow-left", lambda x: root.volver()]]
+
+        MDBoxLayout:
+            padding: dp(10)
+
+            Widget:
+                id: canvas_grafico

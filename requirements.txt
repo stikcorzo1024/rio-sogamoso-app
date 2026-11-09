@@ -1,0 +1,6 @@
+# Dependencias para desarrollo local (Windows/Linux)
+kivy==2.2.1
+kivymd==1.1.1
+pillow
+
+# Para Android se usan las versiones especificadas en buildozer.spec
