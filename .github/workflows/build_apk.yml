@@ -61,6 +61,15 @@ jobs:
           # Compilar (yes para aceptar cualquier prompt)
           yes | buildozer android debug 2>&1 | tee build.log
 
+      - name: Buscar APK generado
+        run: |
+          echo "=== Contenido de bin/ ==="
+          ls -la bin/ 2>/dev/null || echo "bin/ no existe"
+          echo "=== Buscando APKs ==="
+          find . -name "*.apk" -type f 2>/dev/null || echo "No se encontraron APKs"
+          echo "=== Últimas líneas del log ==="
+          tail -50 build.log
+
       - name: Subir APK como artefacto
         uses: actions/upload-artifact@v4
         with:
