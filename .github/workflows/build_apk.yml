@@ -44,13 +44,22 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython virtualenv
 
+      - name: Aceptar licencias Android SDK
+        run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          yes | sdkmanager --licenses || true
+
       - name: Compilar APK
         run: |
           # Limpiar builds anteriores si existen
           rm -rf .buildozer bin
 
-          # Compilar
-          buildozer android debug 2>&1 | tee build.log
+          # Aceptar licencias automáticamente
+          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+
+          # Compilar (yes para aceptar cualquier prompt)
+          yes | buildozer android debug 2>&1 | tee build.log
 
       - name: Subir APK como artefacto
         uses: actions/upload-artifact@v4
