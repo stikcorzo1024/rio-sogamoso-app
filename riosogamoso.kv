@@ -15,8 +15,7 @@
         MDLabel:
             text: "Río Sogamoso"
             halign: 'center'
-            font_style: 'Display'
-            role: 'small'
+            font_style: 'H3'
             theme_text_color: 'Custom'
             text_color: 0.2, 0.8, 0.7, 1
 
@@ -32,14 +31,14 @@
         MDTextField:
             id: usuario
             hint_text: "Usuario XM"
-            mode: "outlined"
+            mode: "rectangle"
             size_hint_x: 0.85
             pos_hint: {'center_x': 0.5}
 
         MDTextField:
             id: contrasena
             hint_text: "Contraseña"
-            mode: "outlined"
+            mode: "rectangle"
             password: True
             size_hint_x: 0.85
             pos_hint: {'center_x': 0.5}
@@ -52,12 +51,10 @@
             size_hint_y: None
             height: dp(30)
 
-        MDButton:
-            style: "filled"
+        MDRaisedButton:
+            text: "Conectar"
             pos_hint: {'center_x': 0.5}
             on_release: root.iniciar_sesion()
-            MDButtonText:
-                text: "Conectar"
 
         MDBoxLayout:
             size_hint_y: 1
@@ -86,8 +83,7 @@
                 id: chip_periodo
                 text: "P--"
                 halign: 'center'
-                font_style: 'Title'
-                role: 'large'
+                font_style: 'H5'
                 theme_text_color: 'Custom'
                 text_color: 0.2, 0.8, 0.7, 1
                 size_hint_x: 0.3
@@ -105,8 +101,7 @@
 
             MDLabel:
                 text: "Despacho del día"
-                font_style: 'Title'
-                role: 'medium'
+                font_style: 'H6'
                 size_hint_y: None
                 height: dp(35)
                 theme_text_color: 'Custom'

@@ -20,10 +20,10 @@ source.exclude_dirs = __pycache__,.git,.github,bin,.buildozer
 source.exclude_patterns = *.pyc,*.pyo,*.json
 
 # Versión
-version = 1.0.1
+version = 1.0.2
 
-# Requisitos de Python - versión simple para prueba
-requirements = python3,kivy==2.3.1
+# Requisitos de Python - KivyMD 1.2.0 compatible
+requirements = python3,kivy==2.3.1,kivymd==1.2.0,pillow,certifi,requests,urllib3,charset-normalizer,idna
 
 # Permisos de Android
 android.permissions = INTERNET,ACCESS_NETWORK_STATE
