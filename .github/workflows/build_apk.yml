@@ -13,6 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -28,7 +34,6 @@ jobs:
             libssl-dev \
             libncurses5-dev \
             libncursesw5-dev \
-            openjdk-17-jdk \
             unzip \
             zip \
             zlib1g-dev \
@@ -52,9 +57,8 @@ jobs:
           export ANDROIDSDK=$HOME/.buildozer/android/platform/android-sdk
           export ANDROIDNDK=$HOME/.buildozer/android/platform/android-ndk-r25b
 
-          # Forzar uso de Python del sistema para hostpython
-          export PYTHON_FOR_ANDROID_FORCE_HOSTPYTHON=python3.11
-          export P4A_HOSTPYTHON_VERSION=3.11
+          # Asegurar que se use Java 17
+          export JAVA_HOME=$JAVA_HOME_17_X64
 
           # Ejecutar build
           buildozer -v android debug 2>&1 | tee build.log || true
