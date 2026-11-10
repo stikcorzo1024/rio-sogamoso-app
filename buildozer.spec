@@ -11,14 +11,19 @@ package.domain = com.isagen
 # Código fuente
 source.dir = .
 
-# Archivos a incluir
+# Archivos a incluir (incluyendo servicios)
 source.include_exts = py,png,jpg,kv,atlas,json
+source.include_patterns = services/*.py
+
+# Excluir archivos innecesarios
+source.exclude_dirs = __pycache__,.git,.github,bin,.buildozer
+source.exclude_patterns = *.pyc,*.pyo,*.json
 
 # Versión
 version = 1.0.0
 
-# Requisitos de Python
-requirements = python3,kivy,kivymd,pillow,certifi,requests
+# Requisitos de Python - versiones específicas que funcionan
+requirements = python3,kivy==2.2.1,kivymd==1.1.1,pillow,certifi,requests,urllib3,charset-normalizer,idna
 
 # Permisos de Android
 android.permissions = INTERNET,ACCESS_NETWORK_STATE
@@ -29,20 +34,25 @@ orientation = portrait
 # Pantalla completa
 fullscreen = 0
 
-# API de Android (mínima y target)
+# API de Android
 android.minapi = 21
-android.api = 31
+android.api = 33
 android.ndk = 25b
 
-# Arquitecturas a compilar (solo arm64 para simplificar)
+# Arquitecturas - arm64 para dispositivos modernos
 android.archs = arm64-v8a
 
-# Modo de release o debug
-android.release_artifact = apk
+# Aceptar licencias automáticamente
+android.accept_sdk_license = True
 
-# Presplash y icono (crear estos archivos)
-# presplash.filename = %(source.dir)s/data/presplash.png
-# icon.filename = %(source.dir)s/data/icon.png
+# Gradle específico
+android.gradle_dependencies =
+
+# Skip update para evitar problemas
+android.skip_update = False
+
+# Bootstrap
+p4a.bootstrap = sdl2
 
 # Configuración de log
 log_level = 2

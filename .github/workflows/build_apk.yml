@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - uses: actions/checkout@v4
@@ -35,27 +35,55 @@ jobs:
             autoconf \
             libtool \
             cmake \
-            lld
+            lld \
+            ccache \
+            pkg-config
 
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install cython==0.29.36 buildozer
+          pip install cython==0.29.36 buildozer python-for-android
 
       - name: Build APK
         run: |
-          yes | buildozer android debug 2>&1 | tee build.log || true
+          # Configurar entorno
+          export ANDROIDSDK=$HOME/.buildozer/android/platform/android-sdk
+          export ANDROIDNDK=$HOME/.buildozer/android/platform/android-ndk-r25b
 
-      - name: Find and upload APK
+          # Ejecutar build con salida detallada
+          buildozer -v android debug 2>&1 | tee build.log
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+
+          echo ""
+          echo "=== BUILD EXIT CODE: $BUILD_EXIT_CODE ==="
+          echo ""
+
+          # Mostrar últimas líneas del log si falla
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo "=== ÚLTIMAS 100 LÍNEAS DEL LOG ==="
+            tail -100 build.log
+          fi
+
+      - name: Check build result
         run: |
-          echo "=== Searching for APK ==="
-          find . -name "*.apk" -type f
-          if ls bin/*.apk 1> /dev/null 2>&1; then
-            echo "APK found!"
+          echo "=== Buscando APK en todo el proyecto ==="
+          find . -name "*.apk" -type f 2>/dev/null || echo "No APK found"
+
+          echo ""
+          echo "=== Contenido de bin/ ==="
+          ls -la bin/ 2>/dev/null || echo "bin/ directory not found"
+
+          echo ""
+          echo "=== Contenido de .buildozer ==="
+          ls -la .buildozer/android/platform/build-arm64-v8a/dists/*/build/outputs/apk/debug/ 2>/dev/null || echo "Build outputs not found"
+
+          # Copiar APK si existe en otra ubicación
+          APK_PATH=$(find . -name "*.apk" -type f 2>/dev/null | head -1)
+          if [ -n "$APK_PATH" ]; then
+            echo "APK encontrado en: $APK_PATH"
+            mkdir -p bin
+            cp "$APK_PATH" bin/riosogamoso-debug.apk
             ls -la bin/
-          else
-            echo "APK not found in bin/, checking other locations..."
-            find . -name "*.apk" -type f -exec cp {} ./app.apk \; 2>/dev/null || true
           fi
 
       - name: Upload APK
@@ -64,7 +92,7 @@ jobs:
           name: RioSogamoso-APK
           path: |
             bin/*.apk
-            *.apk
+            .buildozer/android/platform/build-*/dists/*/build/outputs/apk/**/*.apk
           if-no-files-found: warn
 
       - name: Upload build log
@@ -73,3 +101,11 @@ jobs:
         with:
           name: build-log
           path: build.log
+
+      - name: Upload full buildozer log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-full-log
+          path: .buildozer/logs/
+          if-no-files-found: ignore
