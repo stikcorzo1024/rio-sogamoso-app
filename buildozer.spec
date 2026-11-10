@@ -54,6 +54,9 @@ android.skip_update = False
 # Bootstrap
 p4a.bootstrap = sdl2
 
+# Forzar versión de hostpython para evitar Python 3.14
+p4a.hostpython = 3.11
+
 # Configuración de log
 log_level = 2
 

@@ -43,13 +43,18 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install "cython>=3.0,<4.0" buildozer python-for-android
+          # Usar versión específica de p4a que usa Python 3.11
+          pip install "cython==0.29.36" buildozer "python-for-android==2024.1.21"
 
       - name: Build APK
         run: |
           # Configurar entorno
           export ANDROIDSDK=$HOME/.buildozer/android/platform/android-sdk
           export ANDROIDNDK=$HOME/.buildozer/android/platform/android-ndk-r25b
+
+          # Forzar uso de Python del sistema para hostpython
+          export PYTHON_FOR_ANDROID_FORCE_HOSTPYTHON=python3.11
+          export P4A_HOSTPYTHON_VERSION=3.11
 
           # Ejecutar build
           buildozer -v android debug 2>&1 | tee build.log || true
