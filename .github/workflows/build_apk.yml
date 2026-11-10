@@ -7,20 +7,69 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build with Buildozer
-        uses: ArtemSBulgworthy/buildozer-action@v1
-        id: buildozer
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          workdir: .
-          buildozer_version: stable
+          python-version: '3.10'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            libffi-dev \
+            libssl-dev \
+            libncurses5-dev \
+            libncursesw5-dev \
+            openjdk-17-jdk \
+            unzip \
+            zip \
+            zlib1g-dev \
+            autoconf \
+            libtool \
+            cmake \
+            lld
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install cython==0.29.36 buildozer
+
+      - name: Build APK
+        run: |
+          yes | buildozer android debug 2>&1 | tee build.log || true
+
+      - name: Find and upload APK
+        run: |
+          echo "=== Searching for APK ==="
+          find . -name "*.apk" -type f
+          if ls bin/*.apk 1> /dev/null 2>&1; then
+            echo "APK found!"
+            ls -la bin/
+          else
+            echo "APK not found in bin/, checking other locations..."
+            find . -name "*.apk" -type f -exec cp {} ./app.apk \; 2>/dev/null || true
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: RioSogamoso-APK
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: |
+            bin/*.apk
+            *.apk
+          if-no-files-found: warn
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
