@@ -42,7 +42,8 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install cython==0.29.36 buildozer python-for-android
+          # Usar Cython 3.x que es compatible con Python 3.11+
+          pip install "cython>=3.0,<4.0" buildozer python-for-android
 
       - name: Build APK
         run: |
