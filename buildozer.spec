@@ -45,17 +45,11 @@ android.archs = arm64-v8a
 # Aceptar licencias automáticamente
 android.accept_sdk_license = True
 
-# Gradle específico
-android.gradle_dependencies =
-
 # Skip update para evitar problemas
 android.skip_update = False
 
 # Bootstrap
 p4a.bootstrap = sdl2
-
-# Forzar versión de hostpython para evitar Python 3.14
-p4a.hostpython = 3.11
 
 # Configuración de log
 log_level = 2
