@@ -147,6 +147,11 @@ class TablaDespachoScreen(Screen):
     def abrir_menu(self):
         pass  # Por implementar: menú lateral
 
+    def probar_grafana(self):
+        """Prueba de conexión a Grafana."""
+        app = MDApp.get_running_app()
+        app.test_grafana_connection()
+
 
 class GraficoScreen(Screen):
     """Pantalla con gráfico de generación."""
@@ -322,6 +327,67 @@ class RioSogamosoApp(MDApp):
 
         self.datos_actuales = {}
         self.autorizaciones = {}
+
+    def test_grafana_connection(self):
+        """Prueba de conexión a Grafana - se ejecuta en hilo separado."""
+        def _test():
+            try:
+                import requests
+                import urllib3
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+                session = requests.Session()
+                session.verify = False
+
+                # Intenta acceder a Grafana
+                response = session.get(
+                    "https://isgg.powerp.app/grafana/api/user",
+                    timeout=10
+                )
+
+                # Resultado
+                if response.status_code == 200:
+                    self._mostrar_resultado_grafana(f"✓ Conectado (200)\n{response.text[:100]}")
+                elif response.status_code == 401:
+                    self._mostrar_resultado_grafana(f"✓ Accesible pero no autenticado (401)\nSe necesitan cookies de sesión")
+                elif response.status_code == 403:
+                    self._mostrar_resultado_grafana(f"⚠ Acceso denegado (403)")
+                else:
+                    self._mostrar_resultado_grafana(f"⚠ Respuesta: {response.status_code}")
+
+            except requests.exceptions.SSLError as e:
+                self._mostrar_resultado_grafana(f"✗ Error SSL\n{str(e)[:100]}")
+            except requests.exceptions.ConnectionError as e:
+                self._mostrar_resultado_grafana(f"✗ Error de conexión\n{str(e)[:100]}")
+            except requests.exceptions.Timeout:
+                self._mostrar_resultado_grafana(f"✗ Timeout (10s)")
+            except Exception as e:
+                self._mostrar_resultado_grafana(f"✗ Error: {type(e).__name__}\n{str(e)[:100]}")
+
+        # Ejecutar en hilo separado
+        threading.Thread(target=_test, daemon=True).start()
+
+    @mainthread
+    def _mostrar_resultado_grafana(self, mensaje):
+        """Muestra el resultado de la prueba en la UI."""
+        from kivymd.uix.dialog import MDDialog
+        from kivymd.uix.button import MDFlatButton
+
+        if not hasattr(self, '_dialog_grafana'):
+            self._dialog_grafana = MDDialog(
+                title="Prueba de Grafana",
+                text=mensaje,
+                buttons=[
+                    MDFlatButton(
+                        text="OK",
+                        on_release=lambda x: self._dialog_grafana.dismiss()
+                    )
+                ]
+            )
+        else:
+            self._dialog_grafana.text = mensaje
+
+        self._dialog_grafana.open()
         self.estado_conexion = "Desconectado"
         self.root.current = 'login'
 

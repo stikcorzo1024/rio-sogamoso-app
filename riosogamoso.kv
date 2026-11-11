@@ -70,7 +70,7 @@
         MDTopAppBar:
             title: "Río Sogamoso"
             md_bg_color: 0.08, 0.12, 0.18, 1
-            right_action_items: [["refresh", lambda x: root.refrescar()], ["logout", lambda x: root.cerrar_sesion()]]
+            right_action_items: [["network", lambda x: root.probar_grafana()], ["refresh", lambda x: root.refrescar()], ["logout", lambda x: root.cerrar_sesion()]]
 
         MDBoxLayout:
             orientation: 'horizontal'
